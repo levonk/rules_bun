@@ -63,7 +63,7 @@ toolchain(
     name = "{platform}_toolchain",
     exec_compatible_with = {compatible_with},
     toolchain = "@{user_repository_name}_{platform}//:mylang_toolchain",
-    toolchain_type = "@com_myorg_rules_bun//mylang:toolchain_type",
+    toolchain_type = "@levonk_rules_bun//mylang:toolchain_type",
 )
 """.format(
             platform = platform,

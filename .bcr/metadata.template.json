@@ -1,7 +1,7 @@
 {
-  "homepage": "https://github.com/myorg/rules_bun",
+  "homepage": "https://github.com/levonk/rules_bun",
   "maintainers": [],
-  "repository": ["github:myorg/rules_bun"],
+  "repository": ["github:levonk/rules_bun"],
   "versions": [],
   "yanked_versions": {}
 }

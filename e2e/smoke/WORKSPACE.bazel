@@ -1,6 +1,6 @@
 # Override http_archive for local testing
 local_repository(
-    name = "com_myorg_rules_bun",
+    name = "levonk_rules_bun",
     path = "../..",
 )
 
@@ -14,6 +14,6 @@ local_repository(
 # you should fetch it *before* calling this.
 # Alternatively, you can skip calling this function, so long as you've
 # already fetched all the dependencies.
-load("@com_myorg_rules_bun//mylang:repositories.bzl", "rules_bun_dependencies")
+load("@levonk_rules_bun//mylang:repositories.bzl", "rules_bun_dependencies")
 
 rules_bun_dependencies()
