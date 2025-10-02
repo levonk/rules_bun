@@ -1,0 +1,4 @@
+[tools]
+bazel = "8.3.1"
+node = "lts"
+bun = "latest"
