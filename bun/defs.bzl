@@ -1,5 +1,200 @@
-"Public API re-exports"
+"""Public API for Bun Bazel rules."""
 
-def example():
-    """This is an example"""
-    pass
+load("//bun/private:command.bzl", "bun_command_rule", "bun_test_rule")
+load("//bun/private:detect.bzl", "choose_package_manager")
+load("//bun/private:install.bzl", "bun_install_rule")
+
+
+def bun_install(*, name, package_json, bun_lock = None, data = None, visibility = None, **kwargs):
+    """Installs JavaScript dependencies using Bun.
+
+    Args:
+        name: Target name.
+        package_json: Label of the package.json file.
+        bun_lock: Optional bun.lockb lockfile label.
+        data: Additional data dependencies required during install.
+        visibility: Optional visibility list.
+        **kwargs: Forwarded to the underlying rule.
+    """
+    params = {
+        "name": name,
+        "package_json": package_json,
+        "bun_lock": bun_lock,
+        "data": data or [],
+    }
+    if visibility is not None:
+        params["visibility"] = visibility
+    params.update(kwargs)
+    # Remove None attributes Bazel rules dislike.
+    if params["bun_lock"] is None:
+        params.pop("bun_lock")
+    bun_install_rule(**params)
+
+
+def _invoke_bun_command(*, rule, name, install, script = None, default_command = None, args = None, watch = False, package_json = None, bun_lock = None, data = None, visibility = None, **kwargs):
+    params = {
+        "name": name,
+        "install": install,
+        "script": script,
+        "command": default_command,
+        "args": args or [],
+        "watch": watch,
+        "data": data or [],
+    }
+    if package_json is not None:
+        params["package_json"] = package_json
+    if bun_lock is not None:
+        params["bun_lock"] = bun_lock
+    if visibility is not None:
+        params["visibility"] = visibility
+    params.update(kwargs)
+    rule(**params)
+
+
+def bun_run(*, name, install, script, args = None, package_json = None, bun_lock = None, data = None, visibility = None, **kwargs):
+    """Runs `bun <script>` after ensuring dependencies are installed."""
+    if not script:
+        fail("bun_run requires a `script` argument (for example, script = \"dev\").")
+    _invoke_bun_command(
+        rule = bun_command_rule,
+        name = name,
+        install = install,
+        script = script,
+        default_command = script,
+        args = args,
+        package_json = package_json,
+        bun_lock = bun_lock,
+        data = data,
+        visibility = visibility,
+        **kwargs
+    )
+
+
+def bun_build(*, name, install, script = None, args = None, package_json = None, bun_lock = None, data = None, visibility = None, **kwargs):
+    """Runs Bun build (defaults to the `build` script)."""
+    script = script or "build"
+    _invoke_bun_command(
+        rule = bun_command_rule,
+        name = name,
+        install = install,
+        script = script,
+        default_command = script,
+        args = args,
+        package_json = package_json,
+        bun_lock = bun_lock,
+        data = data,
+        visibility = visibility,
+        **kwargs
+    )
+
+
+def bun_watch(*, name, install, script, args = None, package_json = None, bun_lock = None, data = None, visibility = None, **kwargs):
+    """Runs `bun --watch <script>` for development workflows."""
+    if not script:
+        fail("bun_watch requires a `script` argument (for example, script = \"dev\").")
+    _invoke_bun_command(
+        rule = bun_command_rule,
+        name = name,
+        install = install,
+        script = script,
+        default_command = script,
+        args = args,
+        watch = True,
+        package_json = package_json,
+        bun_lock = bun_lock,
+        data = data,
+        visibility = visibility,
+        **kwargs
+    )
+
+
+def bun_test(*, name, install, script = None, args = None, package_json = None, bun_lock = None, data = None, visibility = None, **kwargs):
+    """Runs Bun tests as a Bazel test target."""
+    script = script or "test"
+    _invoke_bun_command(
+        rule = bun_test_rule,
+        name = name,
+        install = install,
+        script = script,
+        default_command = script,
+        args = args,
+        package_json = package_json,
+        bun_lock = bun_lock,
+        data = data,
+        visibility = visibility,
+        **kwargs
+    )
+
+
+def js_auto_install(*, name, package_json, bun_lock = None, pnpm_lock = None, yarn_lock = None, npm_lock = None, npm_shrinkwrap = None, package_manager = None, handlers = None, data = None, visibility = None, **kwargs):
+    """Chooses an install strategy based on detected lockfiles.
+
+    Args:
+        name: Target name.
+        package_json: Label of package.json.
+        bun_lock: Optional bun.lockb label.
+        pnpm_lock: Optional pnpm-lock.yaml label.
+        yarn_lock: Optional yarn.lock label.
+        npm_lock: Optional package-lock.json label.
+        npm_shrinkwrap: Optional npm-shrinkwrap.json label.
+        package_manager: Optional override matching package.json `packageManager` value.
+        handlers: Mapping of manager string to a callable macro for delegation.
+        data: Additional data deps for install.
+        visibility: Optional visibility list.
+        **kwargs: Forwarded to invoked macro/rule.
+    """
+    lockfile_map = {}
+    if bun_lock is not None:
+        lockfile_map["bun.lockb"] = bun_lock
+    if pnpm_lock is not None:
+        lockfile_map["pnpm-lock.yaml"] = pnpm_lock
+    if yarn_lock is not None:
+        lockfile_map["yarn.lock"] = yarn_lock
+    if npm_lock is not None:
+        lockfile_map["package-lock.json"] = npm_lock
+    if npm_shrinkwrap is not None:
+        lockfile_map["npm-shrinkwrap.json"] = npm_shrinkwrap
+
+    decision = choose_package_manager(lockfile_map, package_manager_field = package_manager)
+
+    if decision.reason == "conflict":
+        names = [match.key for match in decision.matches]
+        fail("Conflicting lockfiles {} detected for target {}".format(names, name))
+
+    manager = decision.manager or "bun"
+    if manager == "bun":
+        bun_install(
+            name = name,
+            package_json = package_json,
+            bun_lock = bun_lock,
+            data = data,
+            visibility = visibility,
+            **kwargs
+        )
+        return
+
+    handlers = handlers or {}
+    handler = handlers.get(manager)
+    if handler is None:
+        fail("Detected package manager '{}' but no handler was provided via handlers={{...}}.".format(manager))
+
+    params = {
+        "name": name,
+        "package_json": package_json,
+        "data": data or [],
+    }
+    if visibility is not None:
+        params["visibility"] = visibility
+    params.update(kwargs)
+
+    if manager == "pnpm" and pnpm_lock is not None:
+        params.setdefault("pnpm_lock", pnpm_lock)
+    elif manager == "yarn" and yarn_lock is not None:
+        params.setdefault("yarn_lock", yarn_lock)
+    elif manager == "npm":
+        if npm_lock is not None:
+            params.setdefault("package_lock", npm_lock)
+        if npm_shrinkwrap is not None:
+            params.setdefault("npm_shrinkwrap", npm_shrinkwrap)
+
+    handler(**params)

@@ -1,0 +1,5 @@
+# yarn lockfile v1
+
+echo@^0.1.0:
+  version "0.1.0"
+  resolved "https://example.com/echo-0.1.0.tgz"

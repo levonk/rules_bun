@@ -15,7 +15,7 @@ bazel_dep(name = "aspect_bazel_lib", version = "1.32.1", dev_dependency = True)
 bazel_dep(name = "buildifier_prebuilt", version = "6.1.2", dev_dependency = True)
 
 bun = use_extension("//bun:extensions.bzl", "bun")
-bun.toolchain(bun_version = "1.14.2")
+bun.toolchain(bun_version = "1.1.23")
 use_repo(bun, "bun_toolchains")
 
 register_toolchains("@bun_toolchains//:all")

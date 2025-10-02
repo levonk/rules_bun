@@ -1,0 +1,10 @@
+lockfileVersion: 5.4
+importers:
+  .:
+    specifiers:
+      echo: ^0.1.0
+    dependencies:
+      echo: 0.1.0
+packages:
+  /echo/0.1.0:
+    resolution: {}

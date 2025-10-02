@@ -36,6 +36,11 @@ bzl_library(
     name = "defs",
     srcs = ["defs.bzl"],
     visibility = ["//visibility:public"],
+    deps = [
+        "//bun/private:command",
+        "//bun/private:detect",
+        "//bun/private:install",
+    ],
 )
 
 bzl_library(

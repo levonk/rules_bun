@@ -163,8 +163,8 @@
   "moduleExtensions": {
     "//bun:extensions.bzl%bun": {
       "general": {
-        "bzlTransitiveDigest": "tA0rWWv7N8sOIctJS7Nhp0E+8uBEt3T/X4ocuXfutm4=",
-        "usagesDigest": "iprV2nadw1Bg4VZJpRTMt0cVlJWAJm+vk/v5n1gx2/A=",
+        "bzlTransitiveDigest": "jlnLLeYTTlcdjDAxFM/wOhXmMHSuLfxPVJ+fLNr+S8A=",
+        "usagesDigest": "ZbZnVqEik54wRywrY8Ie7XZpTxBErKpz09rHc9TE5AU=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -173,28 +173,28 @@
             "repoRuleId": "@@//bun:repositories.bzl%bun_repositories",
             "attributes": {
               "platform": "x86_64-apple-darwin",
-              "bun_version": "1.14.2"
+              "bun_version": "1.1.23"
             }
           },
           "bun_aarch64-apple-darwin": {
             "repoRuleId": "@@//bun:repositories.bzl%bun_repositories",
             "attributes": {
               "platform": "aarch64-apple-darwin",
-              "bun_version": "1.14.2"
+              "bun_version": "1.1.23"
             }
           },
           "bun_x86_64-unknown-linux-gnu": {
             "repoRuleId": "@@//bun:repositories.bzl%bun_repositories",
             "attributes": {
               "platform": "x86_64-unknown-linux-gnu",
-              "bun_version": "1.14.2"
+              "bun_version": "1.1.23"
             }
           },
           "bun_x86_64-pc-windows-msvc": {
             "repoRuleId": "@@//bun:repositories.bzl%bun_repositories",
             "attributes": {
               "platform": "x86_64-pc-windows-msvc",
-              "bun_version": "1.14.2"
+              "bun_version": "1.1.23"
             }
           },
           "bun_toolchains": {
