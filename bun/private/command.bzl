@@ -19,7 +19,7 @@ fi
 if [[ -n "${RUNFILES_MANIFEST_FILE:-}" ]]; then
   while IFS= read -r line; do
     case "$line" in
-      {_runfiles_lib}\ *)
+      {_runfiles_lib}\\ *)
         source "${{line#* }}"
         break
         ;;
@@ -51,7 +51,7 @@ if [[ {watch} -eq 1 ]]; then
   cmd+=("--watch")
 fi
 {command_dispatch}
-{static_args_append}cmd+=("$@")
+{cmd_args_append}cmd+=("$@")
 exec "${cmd[@]}"
 """ % _DEFAULT_BUN_INSTALL
 
@@ -60,15 +60,20 @@ def _escape_shell(arg):
     return arg.replace("\\", "\\\\").replace('"', '\\"')
 
 
-def _format_static_args(args):
+def _format_bun_args(args):
     if not args:
         return ""
-    escaped = " ".join('"{}"'.format(_escape_shell(arg)) for arg in args)
+
+    pieces = []
+    for arg in args:
+        pieces.append('"{}"'.format(_escape_shell(arg)))
+
+    escaped = " ".join(pieces)
     return "cmd+=({})\n".format(escaped)
 
 
-def _render_launcher(ctx, *, install_info, package_json, bun_bin_path, script, fallback, watch, static_args, lockfile, require_script):
-    static_args_append = _format_static_args(static_args)
+def _render_launcher(ctx, *, install_info, package_json, bun_bin_path, script, fallback, watch, bun_args, lockfile, require_script):
+    cmd_args_append = _format_bun_args(bun_args)
 
     script_detection = ""
     missing_script_guard = ""
@@ -116,7 +121,7 @@ fi
         script_detection = script_detection,
         missing_script_guard = missing_script_guard,
         command_dispatch = command_dispatch,
-        static_args_append = static_args_append.replace("{", "{{").replace("}", "}}"),
+        cmd_args_append = cmd_args_append.replace("{", "{{").replace("}", "}}"),
         watch = 1 if watch else 0,
     )
 
@@ -175,7 +180,7 @@ def _bun_command_impl(ctx, *, is_test):
         script = script,
         fallback = fallback,
         watch = ctx.attr.watch,
-        static_args = ctx.attr.args,
+        bun_args = ctx.attr.bun_args,
         lockfile = lockfile.short_path if lockfile else None,
         require_script = ctx.attr.require_script,
     )
@@ -207,7 +212,7 @@ def _make_bun_command_rule(is_test):
         "bun_lock": attr.label(allow_single_file = True),
         "script": attr.string(),
         "command": attr.string(),
-        "args": attr.string_list(),
+        "bun_args": attr.string_list(doc = "Additional arguments passed to Bun after the script/command."),
         "watch": attr.bool(default = False),
         "require_script": attr.bool(default = False, doc = "If true, fail when the requested script is missing."),
         "data": attr.label_list(allow_files = True),
@@ -227,4 +232,4 @@ def _make_bun_command_rule(is_test):
 
 
 bun_command_rule = _make_bun_command_rule(is_test = False)
-bun_test_rule = _make_bun_command_rule(is_test = True)
+bun_command_rule_test = _make_bun_command_rule(is_test = True)

@@ -3,14 +3,20 @@
 
 def _flatten(values):
     result = []
+    if type(values) not in ("list", "tuple"):
+        return result
+
     for value in values:
         if value == None:
             continue
         kind = type(value)
         if kind in ("list", "tuple"):
-            result.extend(_flatten(value))
+            for nested in value:
+                if nested != None:
+                    result.append(nested)
         else:
             result.append(value)
+
     return result
 
 

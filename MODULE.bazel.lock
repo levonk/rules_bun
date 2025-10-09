@@ -163,7 +163,7 @@
   "moduleExtensions": {
     "//bun:extensions.bzl%bun": {
       "general": {
-        "bzlTransitiveDigest": "jlnLLeYTTlcdjDAxFM/wOhXmMHSuLfxPVJ+fLNr+S8A=",
+        "bzlTransitiveDigest": "YUjTZ70gjzumTldHpzEubB2xX0Y01XHafSZp7ulpeaQ=",
         "usagesDigest": "ZbZnVqEik54wRywrY8Ie7XZpTxBErKpz09rHc9TE5AU=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},

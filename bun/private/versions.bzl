@@ -33,7 +33,7 @@ TOOL_VERSIONS = {
         "x86_64-unknown-linux-gnu": struct(
             url = "https://github.com/oven-sh/bun/releases/download/bun-v1.1.23/bun-linux-x64.zip",
             strip_prefix = "bun-linux-x64",
-            sha256 = "e32342cc5ec76b9bf1ac2b9b7d0665d72093ccb3b8a05f7b14473d952d227edd",
+            sha256 = "e9bf97fb29db904084385b2c3d486212228e403678c72759a791307799050216",
         ),
     },
     # 1.1.8 retained for compatibility.
